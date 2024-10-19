@@ -1,0 +1,54 @@
+version: '3.8'
+services:
+  vprodb:
+    build:
+      context: ./Docker-files/db
+    image: ssbdock/appdb
+    container_name: vprodb
+    ports:
+      - "3306:3306"
+    volumes:
+      - vprodbdata:/var/lib/mysql
+      #vprodbdata volume needs to be created
+    environment:
+      - MYSQL_ROOT_PASSWORD=vprodbpass
+
+  vprocache01:
+    image: memcached
+    ports:
+      - "11211:11211"
+
+  vpromq01:
+    image: rabbitmq
+    ports:
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+
+  vproapp:
+    build:
+      context: ./Docker-files/app
+    image: ssbdock/app
+    container_name: vproapp
+    ports:
+      - "8080:8080"
+    volumes:
+      - vproappdata:/usr/local/tomcat/webapps
+      #vproappdata volume needs to be created
+  
+  vproweb:
+    build:
+      context: ./Docker-files/web
+    image: ssbdock/appprofileweb
+    container_name: vproweb
+    ports:
+      - "80:80"
+
+#Creating volumes
+#{} = Creates volume in docker engine. 
+volumes: 
+  vprodbdata: {}
+  vproappdata: {}
+
+   
